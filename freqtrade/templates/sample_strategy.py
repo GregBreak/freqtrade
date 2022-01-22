@@ -60,7 +60,7 @@ class SampleStrategy(IStrategy):
     sell_rsi = IntParameter(low=50, high=100, default=70, space='sell', optimize=True, load=True)
 
     # Optimal timeframe for the strategy.
-    timeframe = '5m'
+    timeframe = '15m'
 
     # Run "populate_indicators()" only for new candle.
     process_only_new_candles = False
@@ -133,6 +133,30 @@ class SampleStrategy(IStrategy):
 
         # ADX
         dataframe['adx'] = ta.ADX(dataframe)
+        # RSI        
+        dataframe['rsi'] = ta.RSI(dataframe)
+        # Parabolic SAR
+        dataframe['sar'] = ta.SAR(dataframe)
+        
+        
+        # # EMA - Exponential Moving Average      
+        dataframe['ema10'] = ta.EMA(dataframe, timeperiod=10)
+        dataframe['ema30'] = ta.EMA(dataframe, timeperiod=30)
+        dataframe['ema50'] = ta.EMA(dataframe, timeperiod=50)
+        dataframe['ema100'] = ta.EMA(dataframe, timeperiod=100)
+        
+        # Bollinger Bands
+        bollinger = qtpylib.bollinger_bands(qtpylib.typical_price(dataframe), window=20, stds=2)
+        dataframe['bb_lowerband'] = bollinger['lower']
+        dataframe['bb_middleband'] = bollinger['mid']
+        dataframe['bb_upperband'] = bollinger['upper']
+        dataframe["bb_percent"] = (
+            (dataframe["close"] - dataframe["bb_lowerband"]) /
+            (dataframe["bb_upperband"] - dataframe["bb_lowerband"])
+        )
+        dataframe["bb_width"] = (
+            (dataframe["bb_upperband"] - dataframe["bb_lowerband"]) / dataframe["bb_middleband"]
+        )
 
         # # Plus Directional Indicator / Movement
         # dataframe['plus_dm'] = ta.PLUS_DM(dataframe)
@@ -170,9 +194,6 @@ class SampleStrategy(IStrategy):
         # # Commodity Channel Index: values [Oversold:-100, Overbought:100]
         # dataframe['cci'] = ta.CCI(dataframe)
 
-        # RSI
-        dataframe['rsi'] = ta.RSI(dataframe)
-
         # # Inverse Fisher transform on RSI: values [-1.0, 1.0] (https://goo.gl/2JGGoy)
         # rsi = 0.1 * (dataframe['rsi'] - 50)
         # dataframe['fisher_rsi'] = (np.exp(2 * rsi) - 1) / (np.exp(2 * rsi) + 1)
@@ -186,9 +207,9 @@ class SampleStrategy(IStrategy):
         # dataframe['slowk'] = stoch['slowk']
 
         # Stochastic Fast
-        stoch_fast = ta.STOCHF(dataframe)
-        dataframe['fastd'] = stoch_fast['fastd']
-        dataframe['fastk'] = stoch_fast['fastk']
+        #stoch_fast = ta.STOCHF(dataframe)
+        #dataframe['fastd'] = stoch_fast['fastd']
+        #dataframe['fastk'] = stoch_fast['fastk']
 
         # # Stochastic RSI
         # Please read https://github.com/freqtrade/freqtrade/issues/2961 before using this.
@@ -198,32 +219,19 @@ class SampleStrategy(IStrategy):
         # dataframe['fastk_rsi'] = stoch_rsi['fastk']
 
         # MACD
-        macd = ta.MACD(dataframe)
-        dataframe['macd'] = macd['macd']
-        dataframe['macdsignal'] = macd['macdsignal']
-        dataframe['macdhist'] = macd['macdhist']
+        #macd = ta.MACD(dataframe)
+        #dataframe['macd'] = macd['macd']
+        #dataframe['macdsignal'] = macd['macdsignal']
+        #dataframe['macdhist'] = macd['macdhist']
 
         # MFI
-        dataframe['mfi'] = ta.MFI(dataframe)
+        #dataframe['mfi'] = ta.MFI(dataframe)
 
         # # ROC
         # dataframe['roc'] = ta.ROC(dataframe)
 
         # Overlap Studies
         # ------------------------------------
-
-        # Bollinger Bands
-        bollinger = qtpylib.bollinger_bands(qtpylib.typical_price(dataframe), window=20, stds=2)
-        dataframe['bb_lowerband'] = bollinger['lower']
-        dataframe['bb_middleband'] = bollinger['mid']
-        dataframe['bb_upperband'] = bollinger['upper']
-        dataframe["bb_percent"] = (
-            (dataframe["close"] - dataframe["bb_lowerband"]) /
-            (dataframe["bb_upperband"] - dataframe["bb_lowerband"])
-        )
-        dataframe["bb_width"] = (
-            (dataframe["bb_upperband"] - dataframe["bb_lowerband"]) / dataframe["bb_middleband"]
-        )
 
         # Bollinger Bands - Weighted (EMA based instead of SMA)
         # weighted_bollinger = qtpylib.weighted_bollinger_bands(
@@ -241,14 +249,6 @@ class SampleStrategy(IStrategy):
         #     dataframe["wbb_middleband"]
         # )
 
-        # # EMA - Exponential Moving Average
-        # dataframe['ema3'] = ta.EMA(dataframe, timeperiod=3)
-        # dataframe['ema5'] = ta.EMA(dataframe, timeperiod=5)
-        # dataframe['ema10'] = ta.EMA(dataframe, timeperiod=10)
-        # dataframe['ema21'] = ta.EMA(dataframe, timeperiod=21)
-        # dataframe['ema50'] = ta.EMA(dataframe, timeperiod=50)
-        # dataframe['ema100'] = ta.EMA(dataframe, timeperiod=100)
-
         # # SMA - Simple Moving Average
         # dataframe['sma3'] = ta.SMA(dataframe, timeperiod=3)
         # dataframe['sma5'] = ta.SMA(dataframe, timeperiod=5)
@@ -257,18 +257,15 @@ class SampleStrategy(IStrategy):
         # dataframe['sma50'] = ta.SMA(dataframe, timeperiod=50)
         # dataframe['sma100'] = ta.SMA(dataframe, timeperiod=100)
 
-        # Parabolic SAR
-        dataframe['sar'] = ta.SAR(dataframe)
-
         # TEMA - Triple Exponential Moving Average
-        dataframe['tema'] = ta.TEMA(dataframe, timeperiod=9)
+        #dataframe['tema'] = ta.TEMA(dataframe, timeperiod=9)
 
         # Cycle Indicator
         # ------------------------------------
         # Hilbert Transform Indicator - SineWave
-        hilbert = ta.HT_SINE(dataframe)
-        dataframe['htsine'] = hilbert['sine']
-        dataframe['htleadsine'] = hilbert['leadsine']
+        #hilbert = ta.HT_SINE(dataframe)
+        #dataframe['htsine'] = hilbert['sine']
+        #dataframe['htleadsine'] = hilbert['leadsine']
 
         # Pattern Recognition - Bullish candlestick patterns
         # ------------------------------------
@@ -344,6 +341,7 @@ class SampleStrategy(IStrategy):
         :param metadata: Additional information, like the currently traded pair
         :return: DataFrame with buy column
         """
+        '''
         dataframe.loc[
             (
                 # Signal: RSI crosses above 30
@@ -351,6 +349,15 @@ class SampleStrategy(IStrategy):
                 (dataframe['tema'] <= dataframe['bb_middleband']) &  # Guard: tema below BB middle
                 (dataframe['tema'] > dataframe['tema'].shift(1)) &  # Guard: tema is raising
                 (dataframe['volume'] > 0)  # Make sure Volume is not 0
+            ),
+            'buy'] = 1
+        '''
+        dataframe.loc[
+            (
+                (dataframe["close"] > dataframe['ema50']) &
+                (dataframe['ema10'] > dataframe['ema50']) &
+                (dataframe['sar']   < dataframe["close"]) &
+                (dataframe['volume'] > 0)
             ),
             'buy'] = 1
 
@@ -363,6 +370,7 @@ class SampleStrategy(IStrategy):
         :param metadata: Additional information, like the currently traded pair
         :return: DataFrame with sell column
         """
+        '''
         dataframe.loc[
             (
                 # Signal: RSI crosses above 70
@@ -370,6 +378,12 @@ class SampleStrategy(IStrategy):
                 (dataframe['tema'] > dataframe['bb_middleband']) &  # Guard: tema above BB middle
                 (dataframe['tema'] < dataframe['tema'].shift(1)) &  # Guard: tema is falling
                 (dataframe['volume'] > 0)  # Make sure Volume is not 0
+            ),
+            'sell'] = 1
+        '''
+        dataframe.loc[
+            (
+                (dataframe['sar']   < dataframe["close"])
             ),
             'sell'] = 1
         return dataframe
